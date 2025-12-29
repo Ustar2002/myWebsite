@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase Config (보안을 위해 깃 업로드 제외)
+lib/firebase_options.dart

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "742220755518",
+    "project_id": "portfolio-web-ustar-b7be6",
+    "storage_bucket": "portfolio-web-ustar-b7be6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:742220755518:android:b2259c359cdee1362a576f",
+        "android_client_info": {
+          "package_name": "com.example.mywebsite"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAvQHL4zzGbWYMRW8fAN5qR9V8LYlycWc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

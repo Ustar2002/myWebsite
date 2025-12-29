@@ -1,121 +1,61 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // 플러터 기본 UI 라이브러리
 
-void main() {
+import 'package:firebase_core/firebase_core.dart'; // 파이어베이스 코어 (초기화를 위해 필요)
+
+import 'package:provider/provider.dart'; // 상태 관리 라이브러리 (데이터를 앱 전체에 뿌려주기 위해 필요)
+
+import 'firebase_options.dart'; // 우리가 만든 파이어베이스 설정 파일 (자동 생성됨)
+
+// 우리가 만든 라우터 파일
+import 'core/router.dart';
+import 'core/app_theme.dart';
+
+// - async가 붙은 이유: Firebase 초기화가 네트워크/디스크를 쓰기 때문에 '비동기(기다림)' 처리가 필요해서입니다.
+void main() async {
+  // 플러터 엔진 초기화
+  // - 원래 runApp()을 호출하면 플러터 엔진이 알아서 켜집니다.
+  // - 하지만 우리는 runApp() 전에 Firebase.initializeApp()을 호출해야 합니다.
+  // - Firebase는 네이티브(Android/iOS/Web) 코드를 사용하므로,
+  //   플러터 엔진과 네이티브가 통신할 수 있는 다리(Binding)를 미리 연결해두는 명령어입니다.
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 파이어베이스 초기화
+  // - 이제 구글 서버와 연결할 준비를 합니다.
+  // - options: 현재 플랫폼(웹인지 앱인지)에 맞는 설정값을 넣어줍니다.
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // 앱 실행
+  // - 여기서부터 UI(위젯)가 그려지기 시작합니다.
   runApp(const MyApp());
 }
 
+// MyApp (루트 위젯)
+// - 앱의 최상위 조상입니다. 여기서 전역 설정(테마, 라우팅, 데이터 공급)을 합니다.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+    // MultiProvider (전역 상태 관리소)
+    // - "의존성 주입(Dependency Injection)"과 비슷합니다.
+    // - 여기서 선언한 데이터는 앱의 어디서든 접근할 수 있습니다.
+    // - 나중에 'User 정보'나 '로그인 상태'를 여기서 관리합니다.
+    return MultiProvider(
+      providers: [
+        // 지금은 임시 데이터. 나중에 Provider<AuthService>(...) 등이 들어갑니다.
+        Provider(create: (_) => 'Hello Provider'),
+      ],
+      // MaterialApp (앱의 겉포장)
+      // - 안드로이드/웹 스타일의 디자인 시스템을 적용합니다.
+      // - .router 생성자를 쓰는 이유: GoRouter 패키지를 쓰기 때문입니다.
+      child: MaterialApp.router(
+        title: 'Developer Portfolio', // 브라우저 탭에 뜨는 이름
+        debugShowCheckedModeBanner: false, // 우측 상단 'Debug' 띠 제거
+        routerConfig: router, // 라우터 설정 연결 (길 안내 지도 전달)
+        // 테마 설정 (Dark Mode)
+        // - 앱 전체의 색상, 폰트를 여기서 한 번에 관리합니다.
+        themeMode: ThemeMode.dark,
+        darkTheme: AppTheme.darkTheme,
       ),
     );
   }
